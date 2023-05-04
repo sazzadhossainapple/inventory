@@ -1,7 +1,11 @@
 const {
   getProductServices,
   createProductService,
-  updateProductService,
+  bulkUpdateProductService,
+  updateProductByIdService,
+  deleteProductByIdService,
+  bulkDeleteProductService,
+  getProductByIdServices,
 } = require("../services/product.services");
 
 exports.getProducts = async (req, res, next) => {
@@ -15,6 +19,25 @@ exports.getProducts = async (req, res, next) => {
     res.status(400).json({
       status: "fail",
       message: "can't get the data",
+      error: error.message,
+    });
+  }
+};
+
+exports.getProductById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await getProductByIdServices(id);
+
+    res.status(200).json({
+      status: "success",
+      message: "Data get by successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: "Couldn't get the product",
       error: error.message,
     });
   }
@@ -47,10 +70,10 @@ exports.createProduct = async (req, res, next) => {
   }
 };
 
-exports.updateProduct = async (req, res, next) => {
+exports.updateProductById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await updateProductService(id, req.body);
+    const result = await updateProductByIdService(id, req.body);
     res.status(200).json({
       status: "success",
       message: "Data update successfully",
@@ -59,6 +82,60 @@ exports.updateProduct = async (req, res, next) => {
     res.status(400).json({
       status: "fail",
       message: "Couldn't update the product",
+      error: error.message,
+    });
+  }
+};
+
+exports.bulkUpdateProduct = async (req, res, next) => {
+  try {
+    const result = await bulkUpdateProductService(req.body);
+    res.status(200).json({
+      status: "success",
+      message: "Data update successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: "Couldn't update the product",
+      error: error.message,
+    });
+  }
+};
+exports.deleteProductById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await deleteProductByIdService(id);
+    if (!result.deletedCount) {
+      return res.status(400).json({
+        status: "fail",
+        error: "Could't delete the product",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      message: "Data deleted successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: "Couldn't delete the product",
+      error: error.message,
+    });
+  }
+};
+
+exports.bulkDeleteProduct = async (req, res, next) => {
+  try {
+    const result = await bulkDeleteProductService(req.body.ids);
+    res.status(200).json({
+      status: "success",
+      message: "Data all deleted successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: "Couldn't delete the product",
       error: error.message,
     });
   }
