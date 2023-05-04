@@ -8,9 +8,44 @@ const {
   getProductByIdServices,
 } = require("../services/product.services");
 
+// get all product
+// exports.getProducts = async (req, res, next) => {
+//   try {
+//     const products = await getProductServices({});
+//     res.status(200).json({
+//       status: "success",
+//       data: products,
+//     });
+//   } catch (error) {
+//     res.status(400).json({
+//       status: "fail",
+//       message: "can't get the data",
+//       error: error.message,
+//     });
+//   }
+// };
+
+// query by prodduct
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await getProductServices();
+    const filters = { ...req.query };
+
+    // sort, page, limit, -> exclude
+    const excludeFields = ["sort", "page", "limit"];
+    excludeFields.forEach((field) => delete filters[field]);
+
+    const queries = {};
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      queries.sortBy = sortBy;
+    }
+
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      queries.fields = fields;
+    }
+
+    const products = await getProductServices(filters, queries);
     res.status(200).json({
       status: "success",
       data: products,
