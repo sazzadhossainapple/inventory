@@ -9,10 +9,14 @@ const Product = require("../models/Product");
 // query by product
 exports.getProductServices = async (filters, queries) => {
   const products = await Product.find(filters)
+    .skip(queries.skip)
+    .limit(queries.limit)
     .select(queries.fields)
     .sort(queries.sortBy);
 
-  return products;
+  const totalProducts = await Product.countDocuments(filters);
+  const page = Math.ceil(totalProducts / queries.limit);
+  return { totalProducts, page, products };
 };
 
 exports.getProductByIdServices = async (ids) => {
